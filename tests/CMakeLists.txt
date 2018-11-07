@@ -5,6 +5,7 @@ set(TEST_SRC
     unordered_test.cpp
     list_test.cpp
     intrusive_test.cpp
+    pointer_test.cpp
 )
 
 add_executable(indexed_tests ${TEST_SRC})
