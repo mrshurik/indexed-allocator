@@ -89,6 +89,10 @@ public:
     explicit Pointer(typename Base::IndexType index) noexcept
     : Base(index) {}
 
+    // static_cast from void pointer
+    explicit Pointer(const Pointer<void, ArenaConfig>& p) noexcept
+    : Base(p) {}
+
     template <typename Type2>
     Pointer(const Pointer<Type2,
             typename std::enable_if<std::is_convertible<Type2*, Type*>::value, ArenaConfig>::type>& p) noexcept
