@@ -40,8 +40,8 @@ protected:
 
     struct Init {
         Init(Arena* arena) {
-            ArenaConfig::arena = arena;
-            ArenaConfig::stackTop = getThreadStackTop();
+            ArenaConfig::setArena(arena);
+            ArenaConfig::setStackTop(getThreadStackTop());
         }
     };
 

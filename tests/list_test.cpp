@@ -44,8 +44,8 @@ protected:
 
     struct Init {
         Init(Arena* arena) {
-            ArenaConfig::arena = arena;
-            ArenaConfig::stackTop = getThreadStackTop();
+            ArenaConfig::setArena(arena);
+            ArenaConfig::setStackTop(getThreadStackTop());
         }
     };
 
@@ -120,8 +120,8 @@ TEST_F(End2EndListTest, allocateOnStack) {
     int buf[8 * 10 / 4];
     ArenaBuf arena(10, true, BufAlloc(buf, sizeof(buf)));
 
-    ArenaConfigStack::arena = &arena;
-    ArenaConfigStack::stackTop = getThreadStackTop();
+    ArenaConfigStack::setArena(&arena);
+    ArenaConfigStack::setStackTop(getThreadStackTop());
 
     initializer_list<Value> elements = {7, 4, 2, 2, 49, 3, -1};
     ListOnStack list;

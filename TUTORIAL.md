@@ -25,7 +25,7 @@ $ ./Bench
 Let’s briefly describe objects taking part in memory allocation:
 
 **Container** - a node-based boost container allocating Node objects. Example: boost::container::list<int>.
- 
+
 **Arena** - a memory buffer, array in memory where place for Node objects is allocated. The Arena is a “stateful malloc” returning indices instead of pointers. Arena is parametrized by IndexType used for the indices, it can only allocate objects of one size and the whole Arena memory is allocated at once.
 
 **Allocator** - a STL-compatible memory allocator needed for definition of a Container type. It redirects allocation to the Arena.
@@ -61,7 +61,7 @@ Pointer objects store only an index, the rest is stored in static variables of t
 They’re a bit special. First, for them you don’t need to use SingleArenaConfigUniversal even when the container is located in heap. Second, they need to allocate vector of buckets, which is resized from time to time. It’s not supported by the Allocator, so the Allocator rebinds to std::allocator for the bucket type. As the result, bucket memory is allocated via std::allocator.
 
 ### Stack and 16-bit IndexType
-Pointer class must be able to address objects on stack. When IndexType is uint16_t, there are only 14 or 15 bits available. With the default Node alignment = sizeof(IndexType) it gives only 32 KB or 64 KB. If the stack is deeper the code may fail. There are 2 ways to fix it. You can increase Node alignment, depending on your use-case Node can have 4 or 8 bytes alignment. Be careful. Another direction, instead of pointing to the top of a stack, you can set stackTop to address below it, to a function’s frame where the container is located or used. Be very careful. 
+Pointer class must be able to address objects on stack. When IndexType is uint16_t, there are only 14 or 15 bits available. With the default Node alignment = sizeof(IndexType) it gives only 32 KB or 64 KB. If the stack is deeper the code may fail. There are 2 ways to fix it. You can increase Node alignment, depending on your use-case Node can have 4 or 8 bytes alignment. Be careful. Another direction, instead of pointing to the top of a stack, you can set stackTop to address below it, to a function’s frame where the container is located or used. Be very careful.
 
 ### Debugging support
 Since the code is not trivial and relies on a few assumptions these assumptions and some pre/post-conditions are checked in asserts. When the code is compiled in Release mode (NDEBUG var is defined) the asserts are removed, if you need them in Release mode please define INDEXED_DEBUG=1.
@@ -91,8 +91,8 @@ using List = boost::container::list<ValueType, Alloc>;
 
 void myFunction() {
     Arena myArena(10); // Arena with capacity 10
-    MyArenaConfig::arena = &myArena; // set Arena pointer in the config
-    MyArenaConfig::stackTop = getThreadStackTop(); // set pointer to the top of the stack
+    MyArenaConfig::setArena(&myArena); // set Arena pointer in the config
+    MyArenaConfig::setStackTop(getThreadStackTop()); // set pointer to the top of the stack
     List myList; // Alloc will use Arena from MyArenaConfig
     myList.push_back(1); // use list as usual
 }

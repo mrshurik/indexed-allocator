@@ -46,8 +46,8 @@ protected:
 
     struct Init {
         Init(Arena* arena) {
-            ArenaConfig::arena = arena;
-            ArenaConfig::stackTop = getThreadStackTop();
+            ArenaConfig::setArena(arena);
+            ArenaConfig::setStackTop(getThreadStackTop());
         }
     };
 
@@ -137,8 +137,8 @@ TEST_F(End2EndMapTest, allocateOnStack) {
     int buf[10 * 24 / 4];
     ArenaBuf arena(10, true, BufAlloc(buf, sizeof(buf)));
 
-    ArenaConfigStack::arena = &arena;
-    ArenaConfigStack::stackTop = getThreadStackTop();
+    ArenaConfigStack::setArena(&arena);
+    ArenaConfigStack::setStackTop(getThreadStackTop());
 
     initializer_list<Pair> elements = {{1, -1}, {2, -2}, {3, -3}, {5, -5}};
     MapOnStack map;

@@ -98,8 +98,8 @@ void runParallel(const char func[], const char text[]) {
     threads.reserve(numThreads);
     for (size_t i = 0; i < numThreads; ++i) {
         threads.emplace_back([this, f, i, text]{
-            Config::arena = this->arena;
-            Config::stackTop = getThreadStackTop();
+            Config::setArena(this->arena);
+            Config::setStackTop(getThreadStackTop());
             f(*this, text, i == 0);
         });
     }
@@ -112,7 +112,7 @@ unique_ptr<Arena> useLocalArenaIfNeeded(bool doDelete) {
     unique_ptr<Arena> res;
     if (runThreadLocal) {
         res.reset(new Arena(n * m + 1, doDelete));
-        Config::arena = res.get();
+        Config::setArena(res.get());
     }
     return res;
 }
@@ -126,8 +126,8 @@ void benchSingleThread() {
     size_t n = 1024;
     size_t m = 1024;
     Arena arena(n * m + 1);
-    Config::stackTop = getThreadStackTop();
-    Config::arena = &arena;
+    Config::setArena(&arena);
+    Config::setStackTop(getThreadStackTop());
     Bench<Config> bench = {&arena, n, m, 3, 1, false};
 
     using indexed = Types<Config>;
@@ -247,7 +247,7 @@ void Bench<Config>::map_quick_insert(const char name[], bool showOutput) {
     size_t dummy = 0;
     auto start = chrono::high_resolution_clock::now();
     for (size_t k = 0; k < repeat; ++k) {
-        Config::arena->reset();
+        Config::getArena()->reset();
         Map map;
 
         for (size_t i = 0; i < n; ++i) {

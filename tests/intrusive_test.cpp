@@ -72,8 +72,8 @@ private:
         Init(List* list) {
             // Only list object contains nodes, unordered_map object doesn't.
             // We need to call if after unordered_map is initialized, since
-            // it assigns ArenaConfig::container too, in its constructor
-            ArenaConfig::container = list;
+            // it calls ArenaConfig::setContainer() too, in its constructor
+            ArenaConfig::setContainer(list);
         }
     };
 
@@ -131,8 +131,8 @@ protected:
 
     struct Init {
         Init(Arena* arena) {
-            ArenaConfig::arena = arena;
-            ArenaConfig::stackTop = getThreadStackTop();
+            ArenaConfig::setArena(arena);
+            ArenaConfig::setStackTop(getThreadStackTop());
         }
     };
 

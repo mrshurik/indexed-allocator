@@ -16,9 +16,11 @@ template <typename Type>
 class StdAllocator;
 
 template <typename ArenaType, typename ConfigClass>
-struct ConfigStoreUniversalStatic {
+class ConfigStoreUniversalStatic {
+public:
     using Arena = ArenaType;
 
+protected:
     /**
     * @brief Arena used by Pointer and Allocator classes
     */
@@ -45,9 +47,11 @@ template <typename ArenaType, typename ConfigClass>
 void* ConfigStoreUniversalStatic<ArenaType, ConfigClass>::container = nullptr;
 
 template <typename ArenaType, typename ConfigClass>
-struct ConfigStoreUniversalPerThread {
+class ConfigStoreUniversalPerThread {
+public:
     using Arena = ArenaType;
 
+protected:
     /**
     * @brief Arena used by Pointer and Allocator classes, one or per thread
     */
@@ -78,10 +82,6 @@ template <typename ConfigStore,
           size_t kNodeAlignment = sizeof(typename ConfigStore::Arena::IndexType)>
 class SingleArenaConfigUniversal : public ConfigStore {
 public:
-    using ConfigStore::arena;
-    using ConfigStore::stackTop;
-    using ConfigStore::container;
-
     using Arena = typename ConfigStore::Arena;
 
     // API for Pointer
@@ -96,6 +96,10 @@ private:
 
     static_assert(!(kObjectSize == 0 && Arena::kIsArrayArenaMT),
                   "ArrayArenaMT can be used only when kObjectSize is defined");
+
+    using ConfigStore::arena;
+    using ConfigStore::stackTop;
+    using ConfigStore::container;
 
 public:
     // { API for Pointer
@@ -137,13 +141,45 @@ public:
     }
     // }
 
+    // { API for user
+
+    /**
+     * @brief Set pointer to the Container object
+     */
+    static void setContainer(void* containerPtr) noexcept { container = containerPtr; }
+
+    /**
+     * @brief Get pointer to the Container object
+     */
+    static void* getContainer() noexcept { return container; }
+
+    /**
+     * @brief Set Arena used by Pointer and Allocator classes
+     */
+    static void setArena(Arena* arenaPtr) noexcept { arena = arenaPtr; }
+
+    /**
+     * @brief Get Arena used by Pointer and Allocator classes
+     */
+    static Arena* getArena() noexcept { return arena; }
+
+    /**
+     * @brief Set pointer to the highest address of the thread's stack
+     */
+    static void setStackTop(void* stackTopPtr) noexcept { stackTop = stackTopPtr; }
+
+    /**
+     * @brief Get pointer to the highest address of the thread's stack
+     */
+    static void* getStackTop() noexcept { return stackTop; }
+
+    // }
+
     // { API for Allocator
     using ArenaPtr = typename ConfigStore::Arena*;
 
     template <typename Type>
     using ArrayAllocator = StdAllocator<Type>;
-
-    static void setContainer(void* ptr) noexcept { container = ptr; }
 
     static ArenaPtr defaultArena() noexcept { return arena; }
     // }
