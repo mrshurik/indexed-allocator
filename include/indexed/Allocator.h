@@ -64,10 +64,13 @@ public:
 
 protected:
     using ArenaPtr = typename ArenaConfig::ArenaPtr;
+    static constexpr bool kAutoSetContainer = ArenaConfig::kAssignContainerFollowingAllocator;
 
     VoidAllocator() noexcept
     : m_arena(ArenaConfig::defaultArena()) {
-        ArenaConfig::setContainer(this);
+        if (kAutoSetContainer) {
+            ArenaConfig::setContainer(this);
+        }
     }
 
     VoidAllocator(const ArenaPtr& arena) noexcept
@@ -89,6 +92,7 @@ class Allocator : public detail::VoidAllocator<ArenaConfig> {
 private:
     using Base = detail::VoidAllocator<ArenaConfig>;
     using ArenaPtr = typename Base::ArenaPtr;
+    using Base::kAutoSetContainer;
 
 public:
     using value_type = Type;
@@ -108,18 +112,24 @@ public:
 
     Allocator(const Allocator& other) noexcept
     : Base(other) {
-        ArenaConfig::setContainer(this);
+        if (kAutoSetContainer) {
+            ArenaConfig::setContainer(this);
+        }
     }
 
     template <typename Type2>
     Allocator(const Allocator<Type2, ArenaConfig>& alloc) noexcept
     : Base(alloc) {
-        ArenaConfig::setContainer(this);
+        if (kAutoSetContainer) {
+            ArenaConfig::setContainer(this);
+        }
     }
 
     Allocator& operator=(const Allocator& other) noexcept {
         this->m_arena = other.m_arena;
-        ArenaConfig::setContainer(this);
+        if (kAutoSetContainer) {
+            ArenaConfig::setContainer(this);
+        }
         return *this;
     }
 

@@ -178,6 +178,13 @@ public:
     // { API for Allocator
     using ArenaPtr = typename ConfigStore::Arena*;
 
+    /**
+     * @brief When true the container pointer is assigned to the Allocator
+     * address, then it's reset on the Allocator copy or move. Nothing
+     * is done automatically when the value is false.
+     */
+    static constexpr bool kAssignContainerFollowingAllocator = true;
+
     template <typename Type>
     using ArrayAllocator = StdAllocator<Type>;
 

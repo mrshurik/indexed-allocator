@@ -139,6 +139,9 @@ public:
     // { API for Allocator
     using ArenaPtr = typename ConfigStore::Arena*;
 
+    // SingleArenaConfig doesn't need to track the container pointer
+    static constexpr bool kAssignContainerFollowingAllocator = false;
+
     template <typename Type>
     using ArrayAllocator = StdAllocator<Type>;
 

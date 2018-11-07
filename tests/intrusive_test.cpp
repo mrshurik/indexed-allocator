@@ -39,7 +39,10 @@ namespace {
 
     // We have to define kObjectSize for SingleArenaConfigUniversal since we use it together with ArrayArenaMT.
     // It's needed in order to avoid data races in ArrayArenaMT (see its doc). It's not needed for ArrayArena.
-    struct ArenaConfig : public SingleArenaConfigUniversalStatic<Arena, ArenaConfig, sizeof(ListEquivalent)> {};
+    struct ArenaConfig : public SingleArenaConfigUniversalStatic<Arena, ArenaConfig, sizeof(ListEquivalent)> {
+        // We want to call setContainer() on our own instead of automatic assignment
+        static constexpr bool kAssignContainerFollowingAllocator = false;
+    };
 }
 
 using Key = int;
@@ -71,8 +74,6 @@ private:
     struct Init {
         Init(List* list) {
             // Only list object contains nodes, unordered_map object doesn't.
-            // We need to call if after unordered_map is initialized, since
-            // it calls ArenaConfig::setContainer() too, in its constructor
             ArenaConfig::setContainer(list);
         }
     };
@@ -119,8 +120,8 @@ private:
         return add(p);
     }
 
-    Map    m_map;
     Init   m_dummy;
+    Map    m_map;
     List   m_list;
     size_t m_capacity;
 };
