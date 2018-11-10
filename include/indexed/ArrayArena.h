@@ -11,6 +11,7 @@
 #include <new>
 #include <cstdint>
 #include <stdexcept>
+#include <type_traits>
 
 namespace indexed {
 
@@ -28,6 +29,9 @@ namespace indexed {
 */
 template <typename Index, typename Alloc>
 class ArrayArena : public Alloc {
+    static_assert(std::is_same<Index, uint16_t>::value ||
+                  std::is_same<Index, uint32_t>::value, "Index must be uint16_t or uint32_t");
+
 public:
     using IndexType = Index;
 
@@ -117,7 +121,7 @@ public:
         if (begin() != nullptr) {
             throw std::runtime_error("indexed::ArrayArena capacity must be set before allocation");
         }
-        m_capacity = capacity;
+        m_capacity = Index(capacity);
     }
 
     /**
@@ -127,7 +131,7 @@ public:
     */
     Index pointer_to(const void* ptr) const noexcept {
         size_t offset = static_cast<const char*>(ptr) - begin();
-        Index pos = uint32_t(offset / sizeof(Index)) / m_elementSizeInIndex;
+        Index pos = Index(uint32_t(offset / sizeof(Index)) / m_elementSizeInIndex);
         indexed_assert(elementSize() * pos == offset
             && "Attempt to create indexed::Pointer pointing inside an allocated Node, do you use iterator-> ?");
         return pos + 1;
@@ -154,7 +158,9 @@ public:
                 indexed_assert(typeSize % sizeof(Index) == 0
                     && "indexed::ArrayArena elementSize must be multiple of Index size");
                 Alloc::malloc(typeSize * m_capacity);
-                m_elementSizeInIndex = typeSize / sizeof(Index);
+                m_elementSizeInIndex = decltype(m_elementSizeInIndex)(typeSize / sizeof(Index));
+                indexed_assert(m_elementSizeInIndex == typeSize / sizeof(Index)
+                    && "indexed::ArrayArenaMT elementSize is too large");
             }
             ++m_usedCapacity;
             index = m_usedCapacity;

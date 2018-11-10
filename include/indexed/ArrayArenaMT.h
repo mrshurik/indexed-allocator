@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <atomic>
 #include <mutex>
+#include <type_traits>
 
 namespace indexed {
 
@@ -38,7 +39,6 @@ private:
     using DoubleIndex = typename DoubleWidth<IndexType>::type;
 
     static constexpr uint8_t kBits = sizeof(IndexType) * 8;
-    static_assert(kBits <= 32, "indexed::ArrayArenaMT doesn't support IndexType > 32 bit");
 
 public:
     LockFreeSList() noexcept
@@ -48,7 +48,7 @@ public:
 
     IndexType listLength(Arena& arena) const noexcept {
         IndexType len = 0;
-        IndexType next = m_head;
+        IndexType next = IndexType(m_head);
         while (next != 0) {
             ++len;
             void* freeSlot = arena.getElement(next);
@@ -60,7 +60,7 @@ public:
     IndexType pull(Arena& arena) noexcept {
         DoubleIndex headD = m_head;
         for(; ;) {
-            IndexType head = headD;
+            IndexType head = IndexType(headD);
             if (head == 0) {
                 return 0;
             }
@@ -115,6 +115,9 @@ private:
 */
 template <typename Index, typename Alloc>
 class ArrayArenaMT : public Alloc {
+    static_assert(std::is_same<Index, uint16_t>::value ||
+                std::is_same<Index, uint32_t>::value, "Index must be uint16_t or uint32_t");
+
 public:
     using IndexType = Index;
 
@@ -199,7 +202,7 @@ public:
         if (begin() != nullptr) {
             throw std::runtime_error("indexed::ArrayArenaMT capacity must be set before allocation");
         }
-        m_capacity = capacity;
+        m_capacity = Index(capacity);
     }
 
     /**
@@ -209,7 +212,7 @@ public:
     */
     Index pointer_to(const void* ptr) const noexcept {
         size_t offset = static_cast<const char*>(ptr) - begin();
-        Index pos = uint32_t(offset / sizeof(Index)) / m_elementSizeInIndex;
+        Index pos = Index(uint32_t(offset / sizeof(Index)) / m_elementSizeInIndex);
         indexed_assert(elementSize() * pos == offset
             && "Attempt to create indexed::Pointer pointing inside an allocated Node, do you use iterator-> ?");
         return pos + 1;
@@ -306,7 +309,9 @@ private:
             m_isAllocError = true;
             throw;
         }
-        m_elementSizeInIndex = typeSize / sizeof(Index);
+        m_elementSizeInIndex = decltype(m_elementSizeInIndex)(typeSize / sizeof(Index));
+        indexed_assert(m_elementSizeInIndex == typeSize / sizeof(Index)
+            && "indexed::ArrayArenaMT elementSize is too large");
     }
 
     Index m_capacity;
