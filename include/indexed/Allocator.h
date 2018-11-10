@@ -93,6 +93,7 @@ private:
     using Base = detail::VoidAllocator<ArenaConfig>;
     using ArenaPtr = typename Base::ArenaPtr;
     using Base::kAutoSetContainer;
+    using IndexType = typename ArenaConfig::IndexType;
 
 public:
     using value_type = Type;
@@ -135,11 +136,13 @@ public:
 
     pointer allocate(size_t n) const {
         indexed_assert(n == 1 && "indexed::Allocator can't allocate/deallocate array");
-        return pointer(this->m_arena->allocate(sizeof(Type)));
+        IndexType arenaInd = this->m_arena->allocate(sizeof(Type));
+        return pointer(ArenaConfig::template arenaToPtrIndex<Type>(arenaInd));
     }
 
     void deallocate(const pointer& ptr, size_t) const noexcept {
-        this->m_arena->deallocate(ptr.get(), sizeof(Type));
+        IndexType arenaInd = ArenaConfig::template ptrToArenaIndex<Type>(ptr.get());
+        this->m_arena->deallocate(arenaInd, sizeof(Type));
     }
 
     friend

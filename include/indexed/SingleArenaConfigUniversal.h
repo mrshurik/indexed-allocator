@@ -189,6 +189,13 @@ public:
     using ArrayAllocator = StdAllocator<Type>;
 
     static ArenaPtr defaultArena() noexcept { return arena; }
+
+    template <typename Node>
+    static IndexType arenaToPtrIndex(IndexType fromArena) noexcept { return fromArena; }
+
+    template <typename Node>
+    static IndexType ptrToArenaIndex(IndexType fromPtr) noexcept { return fromPtr; }
+
     // }
 };
 
