@@ -8,14 +8,35 @@
 
 #include <indexed/Config.h>
 
+#ifdef WIN32
+#include <windows.h>
+#include <processthreadsapi.h>
+#else
 #include <pthread.h>
 #include <stdexcept>
+#endif
 
 namespace indexed {
 
-// If the given pthread functions don't compile you may need to write your own getThreadStackTop()
+// If the given functions don't compile you may need to write your own getThreadStackTop()
 
-#if __APPLE__
+#ifdef WIN32
+
+#if !(_WIN32_WINNT >= 0x0602)
+#error "Thread API used here requires at least Windows 8"
+#endif
+
+/**
+* @brief Get pointer to a thread's stack highest address
+*/
+inline void* getThreadStackTop() {
+	HANDLE_PTR lowLimit = 0;
+	HANDLE_PTR highLimit = 0;
+	GetCurrentThreadStackLimits(&lowLimit, &highLimit);
+	return (void*)(highLimit);
+}
+
+#elif defined(__APPLE__)
 
 /**
 * @brief Get pointer to a thread's stack highest address
