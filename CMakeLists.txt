@@ -4,32 +4,37 @@ cmake_policy(SET CMP0057 NEW)
 
 project(Indexed)
 
-enable_testing()
-
-set(CMAKE_CXX_STANDARD 11)
-
-file(GLOB INCLUDES include/indexed/*.h)
-
 find_package(Boost 1.60 REQUIRED)
 find_package(Threads)
 
-if (NOT NO_INDEXED_TESTS)
+set(CMAKE_CXX_STANDARD 11)
 
-add_subdirectory(tests)
+enable_testing()
 
-endif()
+add_library(indexed INTERFACE)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
+file(GLOB INCLUDES include/indexed/*.h)
 
-add_executable(Bench ${INCLUDES} bench/bench.cpp)
+target_sources(indexed INTERFACE
+    ${INCLUDES}
+)
 
-target_include_directories(Bench PUBLIC
+target_include_directories(indexed INTERFACE
     ${Boost_INCLUDE_DIRS}
     include
 )
 
-target_link_libraries (Bench PUBLIC
+add_subdirectory(tests)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+
+add_executable(Bench bench/bench.cpp)
+
+target_link_libraries(Bench PRIVATE
+    indexed
     Threads::Threads
 )
+
+install(DIRECTORY include DESTINATION include)
 
 endif()
