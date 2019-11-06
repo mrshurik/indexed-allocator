@@ -1,0 +1,21 @@
+language: cpp
+
+jobs:
+  include:
+    - os: linux
+      dist: xenial
+      addons:
+        apt:
+          packages:
+            - libboost-all-dev
+    - os: osx
+      addons:
+        homebrew:
+          packages:
+            - boost
+    - os: windows
+      before_install:
+        - choco install -y boost-msvc-14.1
+          
+script: mkdir build && cd build && cmake .. && cmake --build . && ctest
+
