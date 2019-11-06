@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/mrshurik/indexed-allocator.svg?branch=master)](https://travis-ci.com/mrshurik/indexed-allocator)
+
 # Indexed allocator
 It’s a header-only C++ lib of special allocators for boost node-based containers.
 

@@ -4,7 +4,7 @@
 It’s a header-only library, you don’t have to build and install anything, just set path to the include directory when building your project.
 
 ### Building and running the tests
-You need to have cmake and googletests installed. Go to the project directory.
+You need to have cmake and boost installed. Go to the project directory.
 ```sh
 $ mkdir build
 $ cd build
@@ -14,7 +14,7 @@ $ make test
 ```
 
 ### Building and running the benchmark
-You need to have cmake installed. Go to the build directory. Add -DNO_INDEXED_TESTS=1 if you don't want or can't build tests.
+You need to have cmake installed. Go to the build directory.
 ```sh
 $ cmake -DCMAKE_BUILD_TYPE=Release ..
 $ make
