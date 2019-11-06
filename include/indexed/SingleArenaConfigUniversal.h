@@ -8,6 +8,8 @@
 
 #include <indexed/Config.h>
 
+#include <cstddef>
+
 namespace indexed {
 
 namespace detail {

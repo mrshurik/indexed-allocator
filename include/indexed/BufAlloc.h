@@ -9,6 +9,7 @@
 #include <indexed/Config.h>
 
 #include <new>
+#include <cstddef>
 
 namespace indexed {
 

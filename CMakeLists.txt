@@ -4,7 +4,7 @@ cmake_policy(SET CMP0057 NEW)
 
 project(Indexed)
 
-find_package(Boost 1.60 REQUIRED)
+find_package(Boost 1.58 REQUIRED)
 find_package(Threads)
 
 set(CMAKE_CXX_STANDARD 11)
